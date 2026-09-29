@@ -24,7 +24,7 @@ jobs:
       - name: Cheap model drift check
         if: env.ANTHROPIC_API_KEY != ''
         run: python -m opsharness.run --env all --policy anthropic:claude-haiku-4-5-20251001 --seeds 0:3 --workers 8 --out runs
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: nightly-runs
           path: runs/
