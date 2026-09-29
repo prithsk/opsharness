@@ -1,0 +1,9 @@
+runs/
+approvals/
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+.venv/
+.env
+.env.*

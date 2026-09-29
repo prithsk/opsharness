@@ -1,0 +1,30 @@
+name: nightly
+on:
+  schedule:
+    - cron: "0 7 * * *"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  nightly:
+    runs-on: ubuntu-latest
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install the core from this checkout and every agent
+        run: |
+          pip install -e .
+          pip install --no-deps git+https://github.com/prithsk/opsharness-procurement git+https://github.com/prithsk/opsharness-hotel git+https://github.com/prithsk/opsharness-ecommerce git+https://github.com/prithsk/opsharness-compliance git+https://github.com/prithsk/opsharness-ambient
+      - name: Scorers and harness still sound on every world
+        run: python -m opsharness.run --env all --policy oracle,noop,chaos --seeds 0:10 --workers 8 --out runs
+      - name: Cheap model drift check
+        if: env.ANTHROPIC_API_KEY != ''
+        run: python -m opsharness.run --env all --policy anthropic:claude-haiku-4-5-20251001 --seeds 0:3 --workers 8 --out runs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nightly-runs
+          path: runs/
